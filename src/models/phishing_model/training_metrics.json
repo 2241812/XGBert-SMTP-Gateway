@@ -1,0 +1,26 @@
+{
+  "model_name": "hybrid_distilbert-base-uncased",
+  "train_loss": 0.1522214869793634,
+  "eval_accuracy": 0.9885351394520211,
+  "eval_loss": 0.08393234759569168,
+  "eval_specificity": 0.9946561750875679,
+  "eval_roc_auc": 0.9990374234816117,
+  "quality_gates": {
+    "passed": true,
+    "details": {
+      "1": {
+        "recall": 0.9970970919081437,
+        "passed": true
+      },
+      "2": {
+        "recall": 0.9600787778783201,
+        "passed": true
+      },
+      "3": {
+        "recall": 0.9618696186961869,
+        "passed": true
+      }
+    }
+  },
+  "deployment_recommended": true
+}
