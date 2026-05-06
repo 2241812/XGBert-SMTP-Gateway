@@ -139,6 +139,9 @@ pip install -r requirements.txt
 
 # Download or train a model (see Training section)
 # Place your model files in phishing_model/ or src/models/phishing_model/
+
+# Run the local_pipeline.py to see CLI for options to run the whole system (CLI Menu)
+python -m src.local_pipeline
 ```
 
 ### Running the SMTP Gateway
@@ -154,10 +157,10 @@ SMTP_PORT=1025 python -m src.gateway.gateway
 ### Running the Dashboard
 
 ```bash
-streamlit run src/app.py --server.port 8500
+streamlit run src/app.py --server.port 8501
 ```
 
-Then open http://localhost:8500 in your browser. The dashboard provides a URL tester tab where you can paste any URL and see the full classification breakdown.
+Then open http://localhost:8501 in your browser. The dashboard provides a URL tester tab where you can paste any URL and see the full classification breakdown.
 
 ---
 
