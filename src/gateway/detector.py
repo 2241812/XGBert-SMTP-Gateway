@@ -158,7 +158,17 @@ class PhishingDetector:
         logger.info("PhishingDetector initialized")
 
     def predict(self, url: str, model_name: str = "DistilBERT (Fine-tuned)") -> Dict[str, Any]:
-        result = _ml_predict(url)
+
+        if "DistilBERT" in model_name or "XGBoost" in model_name:
+            result = _ml_predict(url)
+        elif "Logistic Regression" in model_name:
+            from src.models.baseline_predictor import predict_with_lr
+            result = predict_with_lr(url)
+        elif "Random Forest" in model_name:
+            from src.models.baseline_predictor import predict_with_rf
+            result = predict_with_rf(url)
+        else:
+            result = _ml_predict(url)
 
         prediction = result["prediction"]
         malicious_prob = result.get("malicious_probability", 0.0)
