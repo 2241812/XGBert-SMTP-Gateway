@@ -3,8 +3,8 @@ title: smtpBERT
 emoji: 🔒
 colorFrom: blue
 colorTo: purple
-sdk: gradio
-sdk_version: 4.44.0
+sdk: streamlit
+sdk_version: 1.35.0
 app_file: app.py
 pinned: false
 license: mit
@@ -42,7 +42,7 @@ AI-powered URL phishing detection using DistilBERT and XGBoost for multi-class m
 
 1. Enter a URL in the input field
 2. Select a model from the dropdown
-3. Click "Analyze URL" to classify
+3. Click "Analyze" to classify
 
 ## Technical Details
 

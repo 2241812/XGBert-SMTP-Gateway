@@ -1,5 +1,5 @@
-# HuggingFace Spaces requirements - Gradio version
-gradio>=4.44.0
+# Streamlit Cloud requirements
+streamlit==1.35.0
 numpy>=1.26.0
 pandas>=2.2.0
 scikit-learn>=1.5.0
@@ -7,4 +7,5 @@ xgboost>=2.1.0
 joblib>=1.4.0
 transformers>=4.41.0
 torch>=2.0.0
+plotly>=6.7.0
 psutil>=6.0.0
