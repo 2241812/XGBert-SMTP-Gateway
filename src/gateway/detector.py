@@ -157,7 +157,7 @@ class PhishingDetector:
         self._last_model_time = self._resolve_model_mtime()
         logger.info("PhishingDetector initialized")
 
-    def predict(self, url: str) -> Dict[str, Any]:
+    def predict(self, url: str, model_name: str = "DistilBERT (Fine-tuned)") -> Dict[str, Any]:
         result = _ml_predict(url)
 
         prediction = result["prediction"]
@@ -180,6 +180,7 @@ class PhishingDetector:
                 "decision_reason": f"Trusted domain ({domain}) - no suspicious patterns detected",
                 "whitelisted": True,
                 "whitelisted_domain": domain,
+                "model_used": model_name,
             }
 
         if heuristic_score >= 0.3:
@@ -191,6 +192,7 @@ class PhishingDetector:
             "blocked": blocked,
             "whitelisted": is_trusted and heuristic_score < 0.2,
             "whitelisted_domain": domain if is_trusted else None,
+            "model_used": model_name,
         }
 
     def _should_block(

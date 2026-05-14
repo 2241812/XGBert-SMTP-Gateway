@@ -613,7 +613,7 @@ def _render_tester() -> None:
         analyze = st.button("Analyze", type="primary")
 
     if analyze and url_input.strip():
-        result = detector.predict(url_input.strip())
+        result = detector.predict(url_input.strip(), model_name=selected_model)
         label = result["label"]
         blocked = result["blocked"]
         confidence = result["probability"]
