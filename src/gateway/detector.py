@@ -164,24 +164,33 @@ class PhishingDetector:
         malicious_prob = result.get("malicious_probability", 0.0)
         confidence = result.get("probability", 0.0)
         is_trusted = result.get("is_trusted", False)
-        domain = _get_domain(url) if is_trusted else None
+        heuristic_score = result.get("heuristic_score", 0.0)
+        heuristic_reasons = result.get("heuristic_reasons", [])
+        domain = _get_domain(url)
 
-        blocked = prediction in self.block_labels and (confidence > 0.7 or malicious_prob > 0.5)
+        blocked = (
+            prediction in self.block_labels
+            and (confidence > 0.7 or malicious_prob > 0.5)
+        )
 
-        if is_trusted:
+        if is_trusted and heuristic_score < 0.2:
             return {
                 **result,
                 "blocked": False,
-                "decision_reason": f"Trusted domain ({domain}) - {result.get('decision_reason', 'Model confidence: 97.3%')}",
+                "decision_reason": f"Trusted domain ({domain}) - no suspicious patterns detected",
                 "whitelisted": True,
                 "whitelisted_domain": domain,
             }
 
+        if heuristic_score >= 0.3:
+            blocked = True
+            result["blocked"] = True
+
         return {
             **result,
             "blocked": blocked,
-            "whitelisted": False,
-            "whitelisted_domain": None,
+            "whitelisted": is_trusted and heuristic_score < 0.2,
+            "whitelisted_domain": domain if is_trusted else None,
         }
 
     def _should_block(
