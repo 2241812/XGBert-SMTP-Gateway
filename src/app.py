@@ -583,6 +583,23 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
 # -------------------------------------------------------------------------
 def _render_tester() -> None:
     st.markdown("### URL Tester")
+
+    model_options = {
+        "DistilBERT (Fine-tuned)": "distilbert",
+        "XGBoost Baseline": "xgboost",
+        "Logistic Regression": "logistic_regression",
+        "Random Forest": "random_forest",
+    }
+
+    selected_model = st.selectbox(
+        "Select Model",
+        options=list(model_options.keys()),
+        index=0,
+        help="Choose which model to use for URL classification"
+    )
+
+    model_key = model_options[selected_model]
+
     detector = get_detector()
 
     col1, col2 = st.columns([3, 1])
@@ -601,6 +618,8 @@ def _render_tester() -> None:
         blocked = result["blocked"]
         confidence = result["probability"]
         class_probs = result["class_probabilities"]
+
+        st.info(f"**Model Used:** {selected_model}", icon="🤖")
 
         label_colors = {
             "Benign": "#10b981",
