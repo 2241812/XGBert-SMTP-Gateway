@@ -3,10 +3,11 @@ title: smtpBERT
 emoji: 🔒
 colorFrom: blue
 colorTo: purple
-sdk: streamlit
-sdk_version: 1.35.0
+sdk: gradio
+sdk_version: 4.44.0
 app_file: app.py
 pinned: false
+license: mit
 ---
 
 # smtpBERT - URL Phishing Detection Dashboard
@@ -41,13 +42,13 @@ AI-powered URL phishing detection using DistilBERT and XGBoost for multi-class m
 
 1. Enter a URL in the input field
 2. Select a model from the dropdown
-3. Click "Analyze" to classify
+3. Click "Analyze URL" to classify
 
 ## Technical Details
 
 - **DistilBERT**: 66M parameters, fine-tuned on URL classification
 - **XGBoost**: 200 trees, max depth 20, TF-IDF + handcrafted features
-- **Max URL Length**: 512 tokens for transformer, configurable for baselines
+- **Max URL Length**: 512 tokens for transformer
 
 ## Repository
 
