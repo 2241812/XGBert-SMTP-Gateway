@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data files
+data/*.csv
+!data/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Models - trained models are in phishing_model/ and models/
+# These are tracked in git
+phishing_model/
+models/*.pkl
+
+# Raw data (may contain secrets)
+raw_sources/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary directories
+temp_space/
+temp_hf_space/
+
+# Training artifacts
+training/
+remote-kernel/
+
+# Documentation (keep README.md only)
+CODE_DOCUMENTATION.md
+DEPLOY.md
+setup.sh
+
+# Requirements for local development (use requirements.txt for deployment)
+requirements-local.txt
