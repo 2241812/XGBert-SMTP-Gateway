@@ -675,9 +675,6 @@ def _render_tester() -> None:
         </div>
         """, unsafe_allow_html=True)
 
-        if result.get("whitelisted"):
-            st.info(f"✅ Whitelisted domain: `{result.get('whitelisted_domain', '')}` - This domain bypasses blocking but model predictions are still recorded for transparency.", icon="🔓")
-
     elif analyze:
         st.warning("Please enter a URL.")
 
