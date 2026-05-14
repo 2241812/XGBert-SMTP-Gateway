@@ -9,6 +9,7 @@
 
 smtpBERT is a dual-service system that combines a SMTP email gateway with an AI-powered URL classification engine to detect and block phishing, malware, and defacement attempts in incoming emails — in real-time.
 
+You can access the prototype dashboard via this codespace github deployment: https://shiny-pancake-97jw5wq9vwx4f45q-8501.app.github.dev/
 ---
 
 ## Table of Contents
