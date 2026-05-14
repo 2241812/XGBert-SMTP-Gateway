@@ -173,15 +173,61 @@ def _analyze_url_heuristics(url: str) -> Tuple[float, List[str]]:
         reasons.append("Contains long digit sequence")
 
     lookalike_patterns = [
-        (r'g00gle', 'google'), (r'm1crosoft', 'microsoft'),
-        (r'app1e', 'apple'), (r'amaz0n', 'amazon'),
-        (r'paypa1', 'paypal'), (r'faceb00k', 'facebook'),
+        (r'g[0-9]ogle', 'google'), (r'goog1e', 'google'), (r'googl3', 'google'),
+        (r'm[0-9]crosoft', 'microsoft'), (r'micros0ft', 'microsoft'),
+        (r'app[0-9]e', 'apple'), (r'app1e', 'apple'),
+        (r'amaz[0-9]n', 'amazon'), (r'amaz0n', 'amazon'),
+        (r'paypa[0-9]', 'paypal'), (r'payp4l', 'paypal'),
+        (r'faceb[0-9][0-9]k', 'facebook'), (r'faceb00k', 'facebook'),
+        (r'sh[0-9]pify', 'shopify'), (r'shop1fy', 'shopify'),
+        (r'netf[0-9]ix', 'netflix'), (r'netf1ix', 'netflix'),
+        (r'linke[0-9]in', 'linkedin'), (r'1inkedin', 'linkedin'),
     ]
+
     for pattern, brand in lookalike_patterns:
         if re.search(pattern, hostname):
             suspicion += 0.5
             reasons.append(f"Look-alike domain impersonating {brand}")
             break
+
+    def _is_suspicious_domain(domain_str: str) -> bool:
+        suspicious_patterns = [
+            r'g[0-9]{2,}gle', r'g[0-9]og[0-9]e', r'go[0-9]gle', r'goo[0-9]le',
+            r'm[0-9]cr[0-9]', r'm[0-9]cr[0-9]s[0-9]', r'm[0-9]cr[0-9]s[0-9]ft',
+            r'app[0-9]', r'app1e', r'4pple',
+            r'am[0-9]z[0-9]n', r'4mazon',
+            r'payp[0-9]l', r'p4ypal', r'p4yp4l',
+            r'faceb[0-9]{1,}k', r'f4cebook', r'f4ceb00k',
+        ]
+        for pattern in suspicious_patterns:
+            if re.match(pattern, domain_str, re.IGNORECASE):
+                return True
+        return False
+
+    domain_base = hostname.split('.')[0] if '.' in hostname else hostname
+    if _is_suspicious_domain(domain_base):
+        suspicion += 0.6
+        reasons.append(f"Suspicious typosquatting pattern: {domain_base}")
+
+    if len(domain_base) >= 4:
+        for brand in ['google', 'microsoft', 'apple', 'amazon', 'paypal', 'facebook', 'twitter', 'instagram', 'linkedin', 'netflix']:
+            if domain_base == brand:
+                continue
+
+            domain_alpha = ''.join(c for c in domain_base if not c.isdigit())
+            if domain_alpha == brand:
+                suspicion += 0.7
+                reasons.append(f"Typosquatting (digit substitution): {domain_base} -> {brand}")
+                break
+
+            # Check if domain_alpha looks like brand with digits inserted
+            # e.g., g85ogle -> gogle (google with digits in middle)
+            # Strategy: first 2 and last 2 chars must match brand
+            if len(domain_alpha) >= 5:
+                if (domain_alpha[:2] == brand[:2] and domain_alpha[-2:] == brand[-2:]):
+                    suspicion += 0.6
+                    reasons.append(f"Typosquatting (digit substitution): {domain_base} -> {brand}")
+                    break
 
     return min(1.0, suspicion), reasons
 
