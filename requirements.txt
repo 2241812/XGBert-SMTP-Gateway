@@ -1,22 +1,13 @@
-# Dashboard and inference dependencies only
-# For Streamlit Cloud deployment
-
-# Core data and ML
-numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.5.0
-xgboost==2.1.1
-joblib==1.4.2
-
-# Transformer model (for HuggingFace URL-BERT inference only)
-transformers==4.41.2
-
-# Dashboard
+# HuggingFace Spaces requirements
 streamlit==1.35.0
-plotly==6.7.0
-streamlit-aggrid==1.2.1.post2
-matplotlib==3.9.0
-
-# SMTP gateway
-aiosmtpd==1.4.6
-psutil==6.0.0
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.5.0
+xgboost>=2.1.0
+joblib>=1.4.0
+transformers>=4.41.0
+torch>=2.0.0
+plotly>=6.7.0
+streamlit-aggrid>=1.0.0
+matplotlib>=3.9.0
+psutil>=6.0.0
