@@ -274,7 +274,7 @@ def _render_heatmap(confusion: list, title: str) -> None:
         xaxis=dict(tickfont=dict(color=TEXT_DARK), title="", side="bottom", gridcolor=GRID_LIGHT),
         yaxis=dict(tickfont=dict(color=TEXT_DARK), title="True Label", autorange="reversed", gridcolor=GRID_LIGHT),
     )
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 ROC_OVR_PATH = os.path.join(model_config.LOG_DIR, "model_comparison", "roc_curves.json")
@@ -382,7 +382,7 @@ def _render_roc_ovr() -> None:
             x=0.5,
         ),
     )
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
 
 
 # -------------------------------------------------------------------------
@@ -444,7 +444,7 @@ def _render_holdout_comparison() -> None:
     for i, metric in enumerate(metrics_to_plot):
         with cols[i]:
             fig = _make_bar_chart(df[["Model", metric]], metric, metric)
-            st.plotly_chart(fig, width='stretch')
+            st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("#### Confusion Matrices (Interactive Heatmaps)")
     st.caption("Hover over cells for counts. Bright diagonal = correct predictions.")
@@ -526,7 +526,7 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
             xaxis=dict(tickfont=dict(color=TEXT_DARK), title=""),
             yaxis=dict(tickfont=dict(color=TEXT_DARK), gridcolor=GRID_LIGHT, title=metric_name),
         )
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
     # Summary statistics table
     st.markdown("#### Summary Statistics (Mean ± Std across 10 folds)")
@@ -545,7 +545,7 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
         })
 
     if table_rows:
-        st.dataframe(pd.DataFrame(table_rows), width='stretch', hide_index=True)
+        st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
 
     # Aggregated confusion matrix heatmap (averaged across folds)
     st.markdown("#### Averaged Confusion Matrix")
@@ -647,7 +647,7 @@ def _render_tester() -> None:
             title=dict(font=dict(color=TEXT_DARK, size=13), x=0.5),
         )
         fig.update_traces(textposition="outside", textfont=dict(color=TEXT_DARK), marker_line_width=1.5)
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
 
         st.markdown(f"""
         <div class="glass-card">
@@ -671,7 +671,7 @@ def _render_evaluation() -> None:
 
     refresh_col1, refresh_col2 = st.columns([1, 3])
     with refresh_col1:
-        if st.button("🔄 Refresh Metrics", width='stretch'):
+        if st.button("🔄 Refresh Metrics"):
             with st.spinner("Refreshing..."):
                 from src.local_pipeline import gather_dashboard_metrics
                 gather_dashboard_metrics(retrain_distilbert=False, run_baseline_cv=False)
@@ -703,19 +703,19 @@ def _render_evaluation() -> None:
                 lat_fig = px.bar(lat_df, x="Model", y="ms/URL", color="Model", color_discrete_sequence=ACCENT_COLORS_LIGHT, text_auto=".2f", title="Inference Latency (ms per URL)")
                 lat_fig.update_layout(paper_bgcolor=BG_LIGHT, plot_bgcolor=BG_LIGHT, font=dict(family="JetBrains Mono", size=11), title=dict(font=dict(color=TEXT_DARK, size=12), x=0.5), showlegend=False, height=260, margin=dict(l=15, r=15, t=40, b=15), xaxis=dict(tickfont=dict(color=TEXT_DARK)), yaxis=dict(tickfont=dict(color=TEXT_DARK), gridcolor=GRID_LIGHT))
                 lat_fig.update_traces(textposition="outside", textfont=dict(color=TEXT_DARK), marker_line_width=1.5)
-                st.plotly_chart(lat_fig, width='stretch')
+                st.plotly_chart(lat_fig, use_container_width=True)
             with col2:
                 mem_df = pd.DataFrame({"Model": models, "Memory (MB)": mems})
                 mem_fig = px.bar(mem_df, x="Model", y="Memory (MB)", color="Model", color_discrete_sequence=ACCENT_COLORS_LIGHT, text_auto=".1f", title="Memory Usage (MB)")
                 mem_fig.update_layout(paper_bgcolor=BG_LIGHT, plot_bgcolor=BG_LIGHT, font=dict(family="JetBrains Mono", size=11), title=dict(font=dict(color=TEXT_DARK, size=12), x=0.5), showlegend=False, height=260, margin=dict(l=15, r=15, t=40, b=15), xaxis=dict(tickfont=dict(color=TEXT_DARK)), yaxis=dict(tickfont=dict(color=TEXT_DARK), gridcolor=GRID_LIGHT))
                 mem_fig.update_traces(textposition="outside", textfont=dict(color=TEXT_DARK), marker_line_width=1.5)
-                st.plotly_chart(mem_fig, width='stretch')
+                st.plotly_chart(mem_fig, use_container_width=True)
         if os.path.exists(MODEL_SIZES_PATH):
             sizes_data = _load_json(MODEL_SIZES_PATH)
             if sizes_data:
                 size_rows = [{"Model": m, "Size / Params": sizes_data[m].get("size_str", "N/A"), "Accuracy": sizes_data[m].get("accuracy", "N/A"), "ROC-AUC": sizes_data[m].get("roc_auc", "N/A")} for m in sizes_data]
                 st.markdown("#### Model Size Comparison")
-                st.dataframe(pd.DataFrame(size_rows), width='stretch', hide_index=True)
+                st.dataframe(pd.DataFrame(size_rows), use_container_width=True, hide_index=True)
 
     st.markdown("---")
     st.markdown("#### One-vs-Rest ROC Curves (Per-Class)")
