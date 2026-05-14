@@ -810,7 +810,7 @@ def _render_xai() -> None:
         st.markdown("#### XGBoost SHAP — All Classes")
         st.caption("Feature impact on predictions. Red = high feature value, Blue = low. Features sorted by mean |SHAP|.")
         if os.path.exists(xgb_shap_path):
-            st.image(xgb_shap_path, use_container_width=True)
+            st.image(xgb_shap_path)
         elif os.path.exists(xgb_shap_multi_path):
             classes = ["benign", "phishing", "malware", "defacement"]
             cols = st.columns(2)
@@ -819,7 +819,7 @@ def _render_xai() -> None:
                 with cols[i % 2]:
                     st.markdown(f"**{cls.capitalize()}**")
                     if os.path.exists(img_path):
-                        st.image(img_path, use_container_width=True)
+                        st.image(img_path)
                     else:
                         st.info(f"Run `python -m src.models.compute_xgboost_shap` to generate {cls} SHAP plot.")
         else:
@@ -829,7 +829,7 @@ def _render_xai() -> None:
         st.markdown("#### DistilBERT SHAP — Token Importance")
         st.caption("Token-level impact on predictions via KernelSHAP. Run `python -m src.models.compute_distilbert_shap` first.")
         if os.path.exists(distilbert_shap_path):
-            st.image(distilbert_shap_path, use_container_width=True)
+            st.image(distilbert_shap_path)
         elif os.path.exists(distilbert_shap_multi_path):
             classes = ["benign", "phishing", "malware", "defacement"]
             cols = st.columns(2)
@@ -838,7 +838,7 @@ def _render_xai() -> None:
                 with cols[i % 2]:
                     st.markdown(f"**{cls.capitalize()}**")
                     if os.path.exists(img_path):
-                        st.image(img_path, use_container_width=True)
+                        st.image(img_path)
                     else:
                         st.info(f"Run `python -m src.models.compute_distilbert_shap` to generate {cls} SHAP plot.")
         else:
