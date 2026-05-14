@@ -142,7 +142,7 @@ def main():
     hand_features = [extract_url_features(u) for u in test_urls]
     hand_feature_names = FEATURE_NAMES
 
-    all_feature_names = [f"tfidf_{i}" for i in range(tfidf_features.shape[1])] + hand_feature_names
+    all_feature_names = list(tfidf.get_feature_names_out()) + hand_feature_names
 
     X_tfidf = tfidf_features.toarray()
     X = np.hstack([X_tfidf, hand_features])

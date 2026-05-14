@@ -482,6 +482,11 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
 
     for metric_name, metric_key in metric_map.items():
         fig = go.Figure()
+        all_values = []
+        for model_name in ["DistilBERT", "XGBoost", "LogisticRegression", "RandomForest"]:
+            if model_name in summary:
+                all_values.extend(summary[model_name].get(f"{metric_key}_values", []))
+
         for model_name in ["DistilBERT", "XGBoost", "LogisticRegression", "RandomForest"]:
             if model_name not in summary:
                 continue
@@ -501,6 +506,14 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
                 hoverinfo="y+text",
             ))
 
+        if all_values:
+            data_min, data_max = min(all_values), max(all_values)
+            pad = (data_max - data_min) * 0.3 or 0.01
+            y_min = max(0, data_min - pad)
+            y_max = min(1.05, data_max + pad)
+        else:
+            y_min, y_max = 0, 1.05
+
         fig.update_layout(
             title=dict(text=metric_name, font=dict(color=TEXT_DARK, size=14, family="JetBrains Mono"), x=0.5),
             font=dict(family="JetBrains Mono", size=12),
@@ -509,7 +522,7 @@ def _render_cv_results(cv_results: Dict[str, Any]) -> None:
             height=320,
             margin=dict(l=20, r=20, t=50, b=20),
             showlegend=False,
-            yaxis_range=[0, 1.05],
+            yaxis_range=[y_min, y_max],
             xaxis=dict(tickfont=dict(color=TEXT_DARK), title=""),
             yaxis=dict(tickfont=dict(color=TEXT_DARK), gridcolor=GRID_LIGHT, title=metric_name),
         )
@@ -580,7 +593,7 @@ def _render_tester() -> None:
             label_visibility="collapsed",
         )
     with col2:
-        analyze = st.button("Analyze", type="primary", width='stretch')
+        analyze = st.button("Analyze", type="primary")
 
     if analyze and url_input.strip():
         result = detector.predict(url_input.strip())
@@ -642,6 +655,9 @@ def _render_tester() -> None:
           <code style="color:#64748b; font-size:0.8rem">{result.get('decision_reason', '')}</code>
         </div>
         """, unsafe_allow_html=True)
+
+        if result.get("whitelisted"):
+            st.info(f"✅ Whitelisted domain: `{result.get('whitelisted_domain', '')}` - This domain bypasses blocking but model predictions are still recorded for transparency.", icon="🔓")
 
     elif analyze:
         st.warning("Please enter a URL.")
@@ -767,7 +783,6 @@ def _render_methods() -> None:
     - **RQ1:** Side-by-side confusion matrix, accuracy, precision, recall, and F1-score comparison.  
     - **RQ2:** Class-level recall and macro-F1 to assess minority-class sensitivity.  
     - **RQ3:** Inference latency and resource usage benchmarking for gateway deployment.  
-    - **RQ4:** XGBoost feature importance and SHAP-based explainability analysis.
     """)
 
 

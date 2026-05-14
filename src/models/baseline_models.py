@@ -1,3 +1,27 @@
+"""
+Baseline ML Models for URL Phishing Detection
+============================================
+Trains and evaluates 3 baseline classifiers alongside DistilBERT:
+  1. Logistic Regression  - Linear baseline with TF-IDF + handcrafted features
+  2. Random Forest         - Ensemble of decision trees with class weighting
+  3. XGBoost               - Gradient boosted trees with scale_pos_weight balancing
+
+Features:
+  - TF-IDF vectorization of URL character n-grams (2-4 grams, 5000 features)
+  - 28 handcrafted lexical/structural URL features (length, entropy, TLD, etc.)
+  - Class-weighted training to handle imbalanced dataset
+  - Quality gates enforcing minimum recall thresholds per class
+
+Quality Gates (minimum recall thresholds):
+  - Phishing:  85%
+  - Malware:   80%
+  - Defacement: 75%
+
+Usage:
+    python -m src.models.baseline_models       # Train all baselines
+    python -m src.local_pipeline train-baseline # Via CLI
+"""
+
 import json
 import math
 import os
@@ -24,6 +48,9 @@ from .evaluation import create_or_load_fixed_eval_indices
 from .experiment_tracking import finalize_experiment_run, start_experiment_run
 from .quality_gates import evaluate_quality_gates
 
+# ============================================================================
+# Path Configuration
+# ============================================================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RESULTS_DIR = os.path.join(BASE_DIR, "logs", "model_comparison")
@@ -34,17 +61,40 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 
 PROGRESS_FILE = os.path.join(BASE_DIR, "logs", "training_progress.json")
 
+
 def _update_progress(status, percent, loss="--", details=""):
+    """Update training progress file for dashboard/monitoring."""
     os.makedirs(os.path.dirname(PROGRESS_FILE), exist_ok=True)
     data = {"status": status, "progress": percent, "loss": loss, "details": details}
     with open(PROGRESS_FILE, "w") as f:
         json.dump(data, f)
 
+
+# ============================================================================
+# URL Feature Extraction
+# ============================================================================
+
+# Known suspicious TLDs commonly used in phishing/malware
 SUSPICIOUS_TLDS = {"tk", "ml", "ga", "cf", "gq", "xyz", "top", "pw", "club", "zip", "mov"}
+
+# URL shortening services (potential risk indicator)
 SHORTENERS = {"bit.ly", "tinyurl.com", "goo.gl", "t.co", "ow.ly", "is.gd"}
+
+# Brand names commonly impersonated in phishing (typosquatting target)
 BRANDS = ["paypal", "apple", "google", "microsoft", "amazon", "icloud", "ebay", "bank", "wellsfargo"]
 
+
 def shannon_entropy(s: str) -> float:
+    """
+    Calculate Shannon entropy of a string.
+    Higher entropy = more random/unpredictable (potential malicious indicator).
+
+    Args:
+        s: Input string (e.g., URL or domain)
+
+    Returns:
+        Entropy value in bits
+    """
     if not s:
         return 0
     freq = {}
@@ -52,7 +102,26 @@ def shannon_entropy(s: str) -> float:
         freq[c] = freq.get(c, 0) + 1
     return -sum((f / len(s)) * math.log2(f / len(s)) for f in freq.values())
 
+
 def extract_url_features(url: str) -> list:
+    """
+    Extract 28 handcrafted lexical and structural features from a URL.
+
+    Features include:
+      - Length metrics: url_length, domain_length, path_length, query_length
+      - Character counts: dot, dash, slash, digit, special chars
+      - Pattern flags: has_pct, has_ip, has_https, has_at, has_double_slash
+      - Domain attributes: suspicious_tld, subdomain_count, tld_length
+      - Entropy measures: domain_entropy, url_entropy
+      - Brand indicators: has_brand (typosquatting detection)
+      - Other: is_shortener, is_base64, is_url_encoded, vowel_ratio, etc.
+
+    Args:
+        url: The URL to analyze
+
+    Returns:
+        List of 28 numerical features
+    """
     try:
         parsed = urlparse(url if url.startswith("http") else "http://" + url)
     except Exception:

@@ -1,5 +1,37 @@
 """
-Local-only CLI workflow for smtpBERT training and SMTP gateway testing.
+smtpBERT Local CLI Pipeline
+===========================
+A command-line interface for running smtpBERT training, evaluation, and
+SMTP gateway testing workflows locally.
+
+Menu Options:
+  [Training]
+    1) Train Baseline Models    - LogisticRegression, RandomForest, XGBoost
+    2) Train DistilBERT         - Fine-tune transformer model on URL data
+    3) Test DistilBERT          - Run sample predictions with trained model
+
+  [Evaluation]
+    4) Run 10-Fold CV           - Compare all models via stratified 10-fold CV
+    5) Benchmark Inference      - Latency, memory, and ROC curve metrics
+    6) Compute Baseline ROC-AUC  - Quick ROC evaluation on saved models
+    7) Compute Model Sizes       - Parameter counts and file sizes
+    8) Evaluate DistilBERT       - Full evaluation on test set
+    9) Gather All Metrics        - Run 10-fold + benchmark + SHAP in one go
+
+  [Deployment]
+    10) Run SMTP Gateway         - Start the phishing detection SMTP server
+    11) Send Mock Email          - Test gateway with sample URLs
+    12) Run All-in-One           - Train + test + email verification
+
+  [Utilities]
+    13) Open Dashboard           - Launch the Streamlit web UI
+    14) XGBoost SHAP             - Generate XGBoost explainability plots
+    15) DistilBERT SHAP          - Generate DistilBERT explainability plots
+
+Usage:
+    python -m src.local_pipeline              # Interactive menu
+    python -m src.local_pipeline train-baseline
+    python -m src.local_pipeline mock-email --auto-start-gateway --body "test url: http://evil.com"
 """
 
 import argparse
@@ -13,13 +45,25 @@ from email.message import EmailMessage
 from typing import Optional, Dict, Any
 
 
-def train_baseline() -> None:
-    from src.models import baseline_models
+# ============================================================================
+# Training Functions
+# ============================================================================
 
+def train_baseline() -> None:
+    """Train baseline ML models (LogisticRegression, RandomForest, XGBoost)."""
+    from src.models import baseline_models
     baseline_models.main()
 
 
 def train_distilbert(epochs: Optional[int], batch_size: Optional[int], learning_rate: Optional[float]) -> None:
+    """
+    Fine-tune DistilBERT on URL classification data.
+
+    Args:
+        epochs: Number of training epochs (overrides config)
+        batch_size: Training batch size (overrides config)
+        learning_rate: Learning rate (overrides config)
+    """
     from src.models import distilbert_trainer
 
     if epochs is not None:
@@ -33,8 +77,8 @@ def train_distilbert(epochs: Optional[int], batch_size: Optional[int], learning_
 
 
 def test_distilbert() -> None:
+    """Run sample predictions with the trained DistilBERT model."""
     from src.models import distilbert_trainer
-
     distilbert_trainer.test_model()
 
 
@@ -44,6 +88,13 @@ def evaluate_distilbert(
     batch_size: Optional[int] = None,
     learning_rate: Optional[float] = None,
 ) -> None:
+    """
+    Evaluate DistilBERT on the test set.
+
+    Args:
+        retrain: If True, retrain before evaluation
+        epochs, batch_size, learning_rate: Training params if retraining
+    """
     from src.models import distilbert_trainer
 
     if retrain:
@@ -53,8 +104,8 @@ def evaluate_distilbert(
 
 
 def run_baseline_ten_fold_cv() -> None:
+    """Run 10-fold CV for baseline models only (LR, RF, XGBoost)."""
     from src.models.cross_validation import run_kfold_cross_validation
-
     run_kfold_cross_validation(model_type="baseline", n_splits=10)
 
 
